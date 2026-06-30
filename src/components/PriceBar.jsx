@@ -21,30 +21,28 @@ function PriceBar({ symbol }) {
     return () => clearInterval(interval);
   }, [symbol]);
 
-  if (!ticker) return <div style={{ color: '#888' }}>Loading {symbol}...</div>;
+  if (!ticker) return (
+    <div className="pair-card-top" style={{ height: '3px', background: '#222' }} />
+  );
 
   const isUp = ticker.change24h >= 0;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '20px',
-        padding: '10px 0',
-        color: 'white',
-        alignItems: 'center',
-      }}
-    >
-      <span style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
-        ${ticker.price.toLocaleString()}
-      </span>
-      <span style={{ color: isUp ? '#26a69a' : '#ef5350' }}>
-        {isUp ? '▲' : '▼'} {ticker.change24h.toFixed(2)}%
-      </span>
-      <span style={{ color: '#888' }}>
-        H: ${ticker.high24h.toLocaleString()} L: ${ticker.low24h.toLocaleString()}
-      </span>
-    </div>
+    <>
+      <div className={`pair-card-top ${isUp ? 'up' : 'down'}`} />
+      <div className="pair-card-body">
+        <div className="price-bar">
+          <span className="symbol">{ticker.symbol}</span>
+          <span className="price">${ticker.price.toLocaleString()}</span>
+          <span className={`change ${isUp ? 'up' : 'down'}`}>
+            {isUp ? '▲' : '▼'} {ticker.change24h.toFixed(2)}%
+          </span>
+          <span className="hl">
+            H: ${ticker.high24h.toLocaleString()} &nbsp; L: ${ticker.low24h.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </>
   );
 }
 

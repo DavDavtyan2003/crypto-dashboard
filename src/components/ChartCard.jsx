@@ -10,7 +10,7 @@ function ChartCard({ symbol, interval = '4h' }) {
     // Create the chart
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 300,
+      height: 220,
       layout: {
         background: { color: '#1e1e1e' },
         textColor: '#d1d4dc',
@@ -39,6 +39,7 @@ function ChartCard({ symbol, interval = '4h' }) {
       try {
         const candles = await getCandles(symbol, interval, 100);
         candleSeries.setData(candles);
+        chart.timeScale().fitContent();
       } catch (error) {
         console.error(`Failed to load chart for ${symbol}:`, error);
       }
@@ -62,7 +63,7 @@ function ChartCard({ symbol, interval = '4h' }) {
   return (
     <div>
       <h3>{symbol}</h3>
-      <div ref={chartContainerRef} />
+      <div className="chart-wrapper" ref={chartContainerRef} />
     </div>
   );
 }

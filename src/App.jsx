@@ -1,3 +1,4 @@
+import './App.css';
 import { useEffect } from 'react';
 import { getCandles } from './services/binance';
 import { getAllIndicators } from './services/indicators';
@@ -19,15 +20,22 @@ function App() {
     testIndicators();
   }, []);
 
+  const PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
+
   return (
-    <div style={{ padding: '20px', background: '#121212', minHeight: '100vh' }}>
-      <h1 style={{ color: 'white' }}>Crypto Dashboard</h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+    <div className="app">
+      <div className="app-header">
+        <div className="dot" />
+        <h1>Crypto Dashboard</h1>
+      </div>
+      <div className="pairs-grid">
         {PAIRS.map((symbol) => (
-          <div key={symbol}>
+          <div key={symbol} className="pair-card">
             <PriceBar symbol={symbol} />
-            <ChartCard symbol={symbol} interval="4h" />
-            <AIAnalysis symbol={symbol} />
+            <div className="pair-card-body">
+              <ChartCard symbol={symbol} interval="4h" />
+              <AIAnalysis symbol={symbol} />
+            </div>
           </div>
         ))}
       </div>
