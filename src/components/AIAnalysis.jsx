@@ -1,17 +1,18 @@
 import { useState } from 'react';
+import { getCandles } from '../services/binance';
+import { getAllIndicators } from '../services/indicators';
 
-// Temporary mock response — will be replaced with real API call later
-const MOCK_RESPONSE = `1. Market Bias: Bullish
+const MOCK_RESPONSE = `1. Market Bias: Bearish
 
-Price is holding above the 200 EMA with RSI at 62, showing healthy momentum without being overbought. The bullish MACD crossover supports continued upside.
+Price is below the 200 EMA with RSI in oversold territory, and MACD showing a bearish histogram. Momentum favors sellers right now.
 
 2. Trade Setup:
-- Entry: $107,500
-- Stop Loss: $104,800 (below support)
-- Take Profit: $110,000 (at resistance)
+- Entry: Wait for a bounce toward resistance
+- Stop Loss: Above recent swing high
+- Take Profit: Next support zone
 
-3. Main Risk: 
-A rejection at the $110,000 resistance level could trigger a pullback. Fed comments could also shift market sentiment quickly.
+3. Main Risk:
+Oversold RSI can stay oversold longer than expected in strong downtrends — don't catch a falling knife.
 
 4. Confidence Level: Medium`;
 
@@ -23,11 +24,24 @@ function AIAnalysis({ symbol, price, change24h, high24h, low24h }) {
     setLoading(true);
     setAnalysis(null);
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    try {
+      // Fetch real candles and calculate real indicators
+      const candles = await getCandles(symbol, '4h', 250);
+      const indicators = getAllIndicators(candles);
 
-    setAnalysis(MOCK_RESPONSE);
-    setLoading(false);
+      console.log('Real indicators for prompt:', indicators);
+
+      // TODO: send {symbol, price, change24h, high24h, low24h, indicators}
+      // to backend /api/analyze once AI credit is added
+
+      // Simulate network delay for now
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      setAnalysis(MOCK_RESPONSE);
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
