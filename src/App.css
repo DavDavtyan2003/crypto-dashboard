@@ -607,3 +607,70 @@
 .delete-btn:hover {
   color: #ef5350;
 }
+
+
+/* Indicator Badges */
+.indicator-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+}
+
+.badge-label {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.badge-hint {
+  color: #666;
+}
+
+.badge--bull {
+  background: #26a69a18;
+  border-color: #26a69a33;
+}
+
+.badge--bull .badge-label { color: #26a69a; }
+
+.badge--bear {
+  background: #ef535018;
+  border-color: #ef535033;
+}
+
+.badge--bear .badge-label { color: #ef5350; }
+
+.badge--warning {
+  background: #f5a62318;
+  border-color: #f5a62333;
+}
+
+.badge--warning .badge-label { color: #f5a623; }
+
+.badge--danger {
+  background: #ef535018;
+  border-color: #ef535033;
+}
+
+.badge--danger .badge-label { color: #ef5350; }
+
+.badge--neutral {
+  background: #1a1a1a;
+  border-color: #222;
+}
+
+.badge--loading {
+  background: #1a1a1a;
+  border-color: #222;
+  color: #555;
+}

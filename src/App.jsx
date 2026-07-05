@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
-import ChartCard from './components/ChartCard';
-import PriceBar from './components/PriceBar';
-import AIAnalysis from './components/AIAnalysis';
+import PairCard from './components/PairCard';
 import Journal from './components/Journal';
 
 const PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
@@ -34,13 +32,7 @@ function App() {
       {activePage === 'dashboard' && (
         <div className="pairs-grid">
           {PAIRS.map((symbol) => (
-            <div key={symbol} className="pair-card">
-              <PriceBar symbol={symbol} />
-              <div className="pair-card-body">
-                <ChartCard symbol={symbol} interval="4h" />
-                <AIAnalysis symbol={symbol} />
-              </div>
-            </div>
+            <PairCard key={symbol} symbol={symbol} />
           ))}
         </div>
       )}
