@@ -2,6 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const TRADES_FILE = path.join(__dirname, 'trades.json');
+
+// Create trades file if it doesn't exist
+if (!fs.existsSync(TRADES_FILE)) {
+  fs.writeFileSync(TRADES_FILE, JSON.stringify([]));
+}
 
 dotenv.config();
 
@@ -45,6 +58,86 @@ Keep it concise and structured.`;
   } catch (error) {
     console.error('Claude API error:', error);
     res.status(500).json({ error: 'Failed to get analysis' });
+  }
+});
+
+const COIN_KEYWORDS = {
+  BTCUSDT: 'bitcoin',
+  ETHUSDT: 'ethereum',
+  SOLUSDT: 'solana',
+  BNBUSDT: 'binance',
+};
+
+app.get('/api/news/:symbol', async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const keyword = COIN_KEYWORDS[symbol];
+
+    if (!keyword) {
+      return res.status(400).json({ error: 'Unknown symbol' });
+    }
+
+    const url = `https://newsdata.io/api/1/news?apikey=${process.env.NEWSDATA_API_KEY}&q=${keyword}&language=en&category=business,technology&size=8`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`NewsData error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const news = data.results.map((item) => ({
+      title: item.title,
+      url: item.link,
+      source: item.source_name,
+      publishedAt: item.pubDate,
+      description: item.description,
+    }));
+
+    res.json({ news });
+  } catch (error) {
+    console.error('News fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+// Get all trades
+app.get('/api/trades', (req, res) => {
+  try {
+    const trades = JSON.parse(fs.readFileSync(TRADES_FILE, 'utf-8'));
+    res.json({ trades });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load trades' });
+  }
+});
+
+// Save a new trade
+app.post('/api/trades', (req, res) => {
+  try {
+    const trades = JSON.parse(fs.readFileSync(TRADES_FILE, 'utf-8'));
+    const trade = {
+      id: Date.now(),
+      ...req.body,
+      createdAt: new Date().toISOString(),
+    };
+    trades.unshift(trade);
+    fs.writeFileSync(TRADES_FILE, JSON.stringify(trades, null, 2));
+    res.json({ trade });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save trade' });
+  }
+});
+
+// Delete a trade
+app.delete('/api/trades/:id', (req, res) => {
+  try {
+    const trades = JSON.parse(fs.readFileSync(TRADES_FILE, 'utf-8'));
+    const filtered = trades.filter((t) => t.id !== parseInt(req.params.id));
+    fs.writeFileSync(TRADES_FILE, JSON.stringify(filtered, null, 2));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete trade' });
   }
 });
 

@@ -1,44 +1,51 @@
+import { useState } from 'react';
 import './App.css';
-import { useEffect } from 'react';
-import { getCandles } from './services/binance';
-import { getAllIndicators } from './services/indicators';
+import Sidebar from './components/Sidebar';
 import ChartCard from './components/ChartCard';
 import PriceBar from './components/PriceBar';
 import AIAnalysis from './components/AIAnalysis';
+import Journal from './components/Journal';
 
-const PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+const PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
 
 function App() {
-  useEffect(() => {
-    async function testIndicators() {
-      const candles = await getCandles('BTCUSDT', '4h', 250);
-      const indicators = getAllIndicators(candles);
-      console.log('First candle:', new Date(candles[0].time * 1000));
-      console.log('Last candle:', new Date(candles[candles.length - 1].time * 1000));
-      console.log('Last close price:', candles[candles.length - 1].close);
-    }
-    testIndicators();
-  }, []);
-
-  const PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT'];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activePage, setActivePage] = useState('dashboard');
 
   return (
     <div className="app">
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        activePage={activePage}
+        onNavigate={setActivePage}
+      />
+
       <div className="app-header">
+        <button className="hamburger" onClick={() => setSidebarOpen(true)}>
+          <span />
+          <span />
+          <span />
+        </button>
         <div className="dot" />
         <h1>Crypto Dashboard</h1>
       </div>
-      <div className="pairs-grid">
-        {PAIRS.map((symbol) => (
-          <div key={symbol} className="pair-card">
-            <PriceBar symbol={symbol} />
-            <div className="pair-card-body">
-              <ChartCard symbol={symbol} interval="4h" />
-              <AIAnalysis symbol={symbol} />
+
+      {activePage === 'dashboard' && (
+        <div className="pairs-grid">
+          {PAIRS.map((symbol) => (
+            <div key={symbol} className="pair-card">
+              <PriceBar symbol={symbol} />
+              <div className="pair-card-body">
+                <ChartCard symbol={symbol} interval="4h" />
+                <AIAnalysis symbol={symbol} />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {activePage === 'journal' && <Journal />}
     </div>
   );
 }

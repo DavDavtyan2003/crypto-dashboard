@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { getCandles } from '../services/binance';
 import { getAllIndicators } from '../services/indicators';
+import { getNews } from '../services/news';
 import AnalysisModal from './AnalysisModal';
+import NewsModal from './NewsModal';
 
 const MOCK_RESPONSE = `1. Market Bias: Bearish
 
@@ -19,12 +21,16 @@ Oversold RSI can stay oversold longer than expected in strong downtrends — don
 
 function AIAnalysis({ symbol }) {
   const [analysis, setAnalysis] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
+
+  const [news, setNews] = useState(null);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [newsOpen, setNewsOpen] = useState(false);
 
   async function handleAnalyze() {
-    setModalOpen(true);
-    setLoading(true);
+    setAnalysisOpen(true);
+    setAnalysisLoading(true);
     setAnalysis(null);
 
     try {
@@ -32,33 +38,56 @@ function AIAnalysis({ symbol }) {
       const indicators = getAllIndicators(candles);
       console.log('Indicators:', indicators);
 
-      // Simulate delay — replace with real API call later
       await new Promise((resolve) => setTimeout(resolve, 1200));
       setAnalysis(MOCK_RESPONSE);
     } catch (error) {
       console.error('Analysis failed:', error);
     } finally {
-      setLoading(false);
+      setAnalysisLoading(false);
     }
   }
 
-  function handleClose() {
-    setModalOpen(false);
-    setAnalysis(null);
+  async function handleNews() {
+    setNewsOpen(true);
+    setNewsLoading(true);
+    setNews(null);
+
+    try {
+      const data = await getNews(symbol);
+      setNews(data);
+    } catch (error) {
+      console.error('News failed:', error);
+    } finally {
+      setNewsLoading(false);
+    }
   }
 
   return (
     <>
-      <button onClick={handleAnalyze} className="analyze-btn">
-        Analyze {symbol}
-      </button>
+      <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+        <button onClick={handleAnalyze} className="analyze-btn">
+          Analyze {symbol}
+        </button>
+        <button onClick={handleNews} className="analyze-btn news-btn">
+          News {symbol}
+        </button>
+      </div>
 
-      {modalOpen && (
+      {analysisOpen && (
         <AnalysisModal
           symbol={symbol}
           analysis={analysis}
-          loading={loading}
-          onClose={handleClose}
+          loading={analysisLoading}
+          onClose={() => { setAnalysisOpen(false); setAnalysis(null); }}
+        />
+      )}
+
+      {newsOpen && (
+        <NewsModal
+          symbol={symbol}
+          news={news}
+          loading={newsLoading}
+          onClose={() => { setNewsOpen(false); setNews(null); }}
         />
       )}
     </>
